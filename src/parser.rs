@@ -12,6 +12,10 @@ const REGS: [&str; 69] = [
     "ah", "al", "bh", "bl", "ch", "cl", "dh", "dl", "r9b", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b", "sil", "bpl", "spl"
 ];
 
+const PREFIXES: [&str; 7] = [
+    "lock", "repne", "repnz", "rep", "repe", "repz", "bnd"
+];
+
 #[derive(PartialEq, Default)]
 pub struct AtRegAddr {
     reg: String,
@@ -31,7 +35,7 @@ pub enum Operand {
 pub struct Instruction {
     label:  Option<String>,
     prefix: Option<String>,
-    opcode: Option<String>, // This is an option for dumb but convenient reasons.
+    opcode: String,
     opsize: Option<usize>,
     oper0:  Option<Operand>,
     oper1:  Option<Operand>,
@@ -67,8 +71,13 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
     println!("Instruction: `{}`", instruction);
     let mut tokens: Vec<_> = instruction.split(" ").collect();
     tokens.reverse();
-    for mut token in tokens {
+    let mut tokens_iter = tokens.clone().into_iter().enumerate().peekable();
+    while let Some((i, mut token)) = tokens_iter.next() {
         let tok_len: usize = token.len();
+        let next_is_prefix = match tokens_iter.peek() {
+            Some(t) => PREFIXES.contains(&t.1) && i == tokens.len() - 2,
+            None => false,
+        };
         if token.as_bytes()[tok_len - 1] as char == ',' {
             token = &token[0..tok_len - 1]
         }
@@ -95,14 +104,13 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
             println!("Operand size is {} bytes ({})", sz, token);
             instr.opsize = Some(*sz);
             continue
-        } else if is_instruction_or_prefix(token) {
-            if instr.opcode == None {
-                println!("Instruction: {}", token);
-                instr.opcode = Some(token.to_string());
-            } else {
-                println!("Prefix: {}", token);
-                instr.prefix = Some(token.to_string());
-            }
+        } else if PREFIXES.contains(&token) && i == tokens.len() - 1 {
+            println!("Prefix: {}", token);
+            instr.prefix = Some(token.to_string());
+        } else if is_instruction_or_prefix(token) &&
+                  (next_is_prefix || i == tokens.len() - 1) {
+            println!("Instruction: {}", token);
+            instr.opcode = token.to_string();
             continue
         } else if token.as_bytes()[tok_len - 1] as char == ']' {
             let mut arg: AtRegAddr = AtRegAddr::default();
