@@ -140,7 +140,7 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
                 instr.oper0 = Some(Operand::ReadRegAddr(arg));
             }
             continue
-        } else if (token.as_bytes()[0] as char).is_alphanumeric() {
+        } else if (token.as_bytes()[0] as char).is_alphanumeric() || token.as_bytes()[0] as char == '.' {
             println!("Label argument: {}", token);
             if instr.oper1 == None {
                 instr.oper1 = Some(Operand::Label(token.to_string()));
