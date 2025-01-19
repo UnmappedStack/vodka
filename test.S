@@ -1,1 +1,1 @@
-mov rax, -12[rbp]
+mov rax

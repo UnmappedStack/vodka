@@ -133,6 +133,10 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
             panic!("Couldn't detect token type: {}", token);
         }
     }
+    if instr.oper1 != None && instr.oper0 == None {
+        instr.oper0 = instr.oper1;
+        instr.oper1 = None;
+    }
     return Some(instr);
 }
 
