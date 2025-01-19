@@ -1,7 +1,7 @@
 # Vodka
 x86_64 to ARM64 assembly "compiler", in Rust.
 
-![Image of a cartoon bottle of vodka](https://images.vexels.com/media/users/3/144248/isolated/preview/d66ecac30244fedd1e36e415f3bc904e-russia-vodka-illustration.png)
+<img alt="Image of a cartoon bottle of vodka" src="https://images.vexels.com/media/users/3/144248/isolated/preview/d66ecac30244fedd1e36e415f3bc904e-russia-vodka-illustration.png" width="50%">
 
 ## What is this?
 Simply put, this is a project that aims to be able to convert x86_64 assembly (GAS, intel syntax) to ARM64 assembly. This has one major goal: be able to convert already-compiled programs for x86_64 to ARM64 programs.
