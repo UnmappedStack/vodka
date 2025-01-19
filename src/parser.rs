@@ -29,6 +29,7 @@ pub enum Operand {
     Immediate(isize),
     ReadRegAddr(AtRegAddr),
     Register(String),
+    Label(String),
 }
 
 #[derive(Default)]
@@ -41,7 +42,7 @@ pub struct Instruction {
     oper1:  Option<Operand>,
 }
 
-fn is_instruction_or_prefix(s: &str) -> bool {
+fn str_is_alphabetic(s: &str) -> bool {
     for c in s.chars() {
         if !c.is_alphanumeric() {return false}
     }
@@ -73,21 +74,22 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
     tokens.reverse();
     let mut tokens_iter = tokens.clone().into_iter().enumerate().peekable();
     while let Some((i, mut token)) = tokens_iter.next() {
-        let tok_len: usize = token.len();
+        let mut tok_len: usize = token.len();
         let next_is_prefix = match tokens_iter.peek() {
             Some(t) => PREFIXES.contains(&t.1) && i == tokens.len() - 2,
             None => false,
         };
         if token.as_bytes()[tok_len - 1] as char == ',' {
-            token = &token[0..tok_len - 1]
+            token = &token[0..tok_len - 1];
+            tok_len -= 1;
         }
         let mut n = token.parse::<isize>();
         if n.is_ok() {
             println!("Immediate: {}", n.clone().unwrap());
             if instr.oper1 == None {
-                instr.oper0 = Some(Operand::Immediate(n.unwrap()));
-            } else {
                 instr.oper1 = Some(Operand::Immediate(n.unwrap()));
+            } else {
+                instr.oper0 = Some(Operand::Immediate(n.unwrap()));
             }
             continue
         } else if token.to_lowercase() == "ptr" {
@@ -107,7 +109,8 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
         } else if PREFIXES.contains(&token) && i == tokens.len() - 1 {
             println!("Prefix: {}", token);
             instr.prefix = Some(token.to_string());
-        } else if is_instruction_or_prefix(token) &&
+            continue
+        } else if str_is_alphabetic(token) &&
                   (next_is_prefix || i == tokens.len() - 1) {
             println!("Instruction: {}", token);
             instr.opcode = token.to_string();
@@ -132,11 +135,18 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
                 println!(", offset: {}", arg.offset_num);
             }
             if instr.oper1 == None {
-                instr.oper0 = Some(Operand::ReadRegAddr(arg));
-            } else {
                 instr.oper1 = Some(Operand::ReadRegAddr(arg));
+            } else {
+                instr.oper0 = Some(Operand::ReadRegAddr(arg));
             }
             continue
+        } else if (token.as_bytes()[0] as char).is_alphanumeric() {
+            println!("Label argument: {}", token);
+            if instr.oper1 == None {
+                instr.oper1 = Some(Operand::Label(token.to_string()));
+            } else {
+                instr.oper0 = Some(Operand::Label(token.to_string()));
+            }
         } else {
             panic!("Couldn't detect token type: {}", token);
         }

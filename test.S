@@ -1,1 +1,1 @@
-lock mov rax, -12[rbp]
+lock mov aLabel, -12[rbp]
