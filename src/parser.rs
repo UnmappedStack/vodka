@@ -43,7 +43,7 @@ fn is_instruction_or_prefix(s: &str) -> bool {
     true
 }
 
-pub fn lex(instruction: &str, sizes: HashMap<&str, usize>) {
+pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) {
     println!("Instruction: `{}`", instruction);
     let mut tokens: Vec<_> = instruction.split(" ").collect();
     tokens.reverse();
