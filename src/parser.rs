@@ -29,6 +29,7 @@ pub enum Operand {
 
 #[derive(Default)]
 pub struct Instruction {
+    label:  Option<String>,
     prefix: Option<String>,
     opcode: Option<String>, // This is an option for dumb but convenient reasons.
     opsize: Option<usize>,
@@ -43,11 +44,16 @@ fn is_instruction_or_prefix(s: &str) -> bool {
     true
 }
 
-pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) {
+pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Instruction {
+    let mut instr: Instruction = Instruction::default();
+    if instruction.chars().last() == Some(':') {
+        println!("Label: {}", &instruction[..instruction.len() - 1]);
+        instr.label = Some((&instruction[..instruction.len() - 1]).to_string());
+        return instr;
+    }
     println!("Instruction: `{}`", instruction);
     let mut tokens: Vec<_> = instruction.split(" ").collect();
     tokens.reverse();
-    let mut instr: Instruction = Instruction::default();
     for mut token in tokens {
         let tok_len: usize = token.len();
         if token.as_bytes()[tok_len - 1] as char == ',' {
@@ -113,4 +119,5 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) {
         }
         println!("Tok: {}", token);
     }
+    return instr;
 }

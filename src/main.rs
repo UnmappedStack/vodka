@@ -8,6 +8,9 @@ fn main() {
         ("dword", 4),
         ("qword", 8),
     ]);
+    let instr: &str = "main:";
+    parser::parse(instr, sizes.clone());
+    println!();
     let instr: &str = "lock mov rax, 3";
     parser::parse(instr, sizes.clone());
     println!();
