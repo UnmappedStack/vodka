@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fs;
 mod parser;
 
 fn main() {
@@ -8,12 +9,7 @@ fn main() {
         ("dword", 4),
         ("qword", 8),
     ]);
-    let instr: &str = "main:";
-    parser::parse(instr, sizes.clone());
-    println!();
-    let instr: &str = "lock mov rax, 3";
-    parser::parse(instr, sizes.clone());
-    println!();
-    let instr: &str = "mov rax, DWORD PTR -12[rbp]";
-    parser::parse(instr, sizes);
+    let x86asm = fs::read_to_string("test.S")
+                    .expect("Couldn't find test.S x86_64 assembly file for testing.");
+    parser::parse_file(x86asm, sizes);
 }

@@ -44,7 +44,17 @@ fn is_instruction_or_prefix(s: &str) -> bool {
     true
 }
 
+fn normalise_spaces(input: &str) -> String {
+    let mut result = input.to_string();
+    while result.contains("  ") || result.contains("\t") {
+        result = result.replace("  ", " ");
+        result = result.replace("\t", " ");
+    }
+    result
+}
+
 pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instruction> {
+    if instruction.len() == 0 {return None}
     let mut instr: Instruction = Instruction::default();
     if instruction.chars().last() == Some(':') {
         println!("Label: {}", &instruction[..instruction.len() - 1]);
@@ -119,8 +129,16 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
                 instr.oper1 = Some(Operand::ReadRegAddr(arg));
             }
             continue
+        } else {
+            panic!("Couldn't detect token type: {}", token);
         }
-        println!("Tok: {}", token);
     }
     return Some(instr);
+}
+
+pub fn parse_file(asm: String, sizes: HashMap<&str, usize>) {
+    let lines: Vec<_> = asm.split("\n").collect();
+    for instruction in lines {
+        parse(&normalise_spaces(instruction.trim_start()), sizes.clone());
+    }
 }
