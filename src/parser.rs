@@ -44,12 +44,15 @@ fn is_instruction_or_prefix(s: &str) -> bool {
     true
 }
 
-pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Instruction {
+pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instruction> {
     let mut instr: Instruction = Instruction::default();
     if instruction.chars().last() == Some(':') {
         println!("Label: {}", &instruction[..instruction.len() - 1]);
         instr.label = Some((&instruction[..instruction.len() - 1]).to_string());
-        return instr;
+        return Some(instr);
+    }
+    if instruction.as_bytes()[0] as char == '.' {
+        return None;
     }
     println!("Instruction: `{}`", instruction);
     let mut tokens: Vec<_> = instruction.split(" ").collect();
@@ -119,5 +122,5 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Instruction {
         }
         println!("Tok: {}", token);
     }
-    return instr;
+    return Some(instr);
 }
