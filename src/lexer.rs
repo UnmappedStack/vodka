@@ -10,7 +10,7 @@ const REGS: [&str; 69] = [
     "ah", "al", "bh", "bl", "ch", "cl", "dh", "dl", "r9b", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b", "sil", "bpl", "spl"
 ];
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Default)]
 pub struct AtRegAddr {
     reg: String,
     off_is_reg: bool,
@@ -47,10 +47,11 @@ pub fn lex(instruction: &str) {
     tokens.reverse();
     let mut instr: Instruction = Instruction::default();
     for mut token in tokens {
-        if token.as_bytes()[token.len() - 1] as char == ',' {
-            token = &token[0..token.len() - 1]
+        let tok_len: usize = token.len();
+        if token.as_bytes()[tok_len - 1] as char == ',' {
+            token = &token[0..tok_len - 1]
         }
-        let n = token.parse::<isize>();
+        let mut n = token.parse::<isize>();
         if n.is_ok() {
             println!("Immediate: {}", n.clone().unwrap());
             if instr.oper1 == None {
@@ -76,8 +77,31 @@ pub fn lex(instruction: &str) {
                 instr.prefix = Some(token.to_string());
             }
             continue
-        } else if token.as_bytes()[token.len() - 1] as char == ']' {
-            todo!("Memory read argument types");
+        } else if token.as_bytes()[tok_len - 1] as char == ']' {
+            let mut arg: AtRegAddr = AtRegAddr::default();
+            let lbracket_idx = token.find("[").unwrap();
+            arg.reg = (&token[lbracket_idx + 1..tok_len - 1]).to_string();
+            let off = &token[..lbracket_idx];
+            print!("Offset read - Address in register: {}", arg.reg);
+            if REGS.contains(&off) {
+                arg.off_is_reg = true;
+                arg.offset_reg = off.to_string();
+                println!(", offset in register: {}", arg.offset_reg);
+            } else {
+                arg.off_is_reg = false;
+                n = off.parse::<isize>();
+                if !n.is_ok() {
+                    panic!("Memory access offset is neither a register nor an immediate numeric value.");
+                }
+                arg.offset_num = n.unwrap();
+                println!(", offset: {}", arg.offset_num);
+            }
+            if instr.oper1 == None {
+                instr.oper0 = Some(Operand::ReadRegAddr(arg));
+            } else {
+                instr.oper1 = Some(Operand::ReadRegAddr(arg));
+            }
+            continue
         }
         println!("Tok: {}", token);
     }

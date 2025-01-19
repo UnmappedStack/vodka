@@ -4,6 +4,6 @@ fn main() {
     let instr: &str = "lock mov rax, 3";
     lexer::lex(instr);
     println!();
-    let instr: &str = "mov rax, 3[rbp]";
+    let instr: &str = "mov rax, -12[rbp]";
     lexer::lex(instr);
 }
