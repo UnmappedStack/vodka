@@ -3,6 +3,8 @@
 
 #![allow(dead_code)]
 
+use std::collections::HashMap;
+
 const REGS: [&str; 69] = [
     "rax", "rbx", "rcx", "rdx",  "r8",  "r9",  "r10",  "r11",  "r12",  "r13",  "r14",  "r15", "rsi", "rdi", "rbp", "rsp", "rip",
     "eax", "ebx", "ecx", "edx", "r8d", "r9d", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d", "esi", "edi", "ebp", "esp", "eip",
@@ -41,7 +43,7 @@ fn is_instruction_or_prefix(s: &str) -> bool {
     true
 }
 
-pub fn lex(instruction: &str) {
+pub fn lex(instruction: &str, sizes: HashMap<&str, usize>) {
     println!("Instruction: `{}`", instruction);
     let mut tokens: Vec<_> = instruction.split(" ").collect();
     tokens.reverse();
@@ -60,6 +62,8 @@ pub fn lex(instruction: &str) {
                 instr.oper1 = Some(Operand::Immediate(n.unwrap()));
             }
             continue
+        } else if token.to_lowercase() == "ptr" {
+            continue
         } else if REGS.contains(&token) {
             println!("Register: {}", token);
             if instr.oper1 == None {
@@ -67,6 +71,10 @@ pub fn lex(instruction: &str) {
             } else {
                 instr.oper1 = Some(Operand::Register(token.to_string()));
             }
+            continue
+        } else if let Some(sz) = sizes.get(token.to_lowercase().as_str()) {
+            println!("Operand size is {} bytes ({})", sz, token);
+            instr.opsize = Some(*sz);
             continue
         } else if is_instruction_or_prefix(token) {
             if instr.opcode == None {
