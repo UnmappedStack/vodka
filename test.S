@@ -8,8 +8,8 @@ main:
 .LFB0:
 	.cfi_startproc
 	push	rbp
-    mov     rbp, 0
-	.cfi_def_cfa_offset 16
+	lea rbp, .L2[rip]
+    .cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
 	mov	rbp, rsp
 	.cfi_def_cfa_register 6

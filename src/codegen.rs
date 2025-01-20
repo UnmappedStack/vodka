@@ -10,6 +10,22 @@ fn convert_push(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &s
     };
 }
 
+fn convert_lea(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
+    match (instr.oper0, instr.oper1) {
+        (Some(Operand::Register(r)), Some(Operand::ReadRegAddr(m))) => {
+            if let AddrOffset::Label(label) = m.off {
+                buf.push_str(format!(
+                    "ADR r29, {}\nADD {}, r29, {}\n",
+                    label, reg_equ.get(r.as_str()).expect("unknown register to lea"), reg_equ.get(m.reg.as_str()).expect("unknown register to lea")
+                ).as_str());
+            } else {
+                panic!("lea operand 1 must always be a memory offset with a label");
+            }
+        }, 
+        _ => todo!("so far operand 0 of lea can only be a register and operand 1 must always be a memory offset"),
+    }
+}
+
 fn convert_mov(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
     match (instr.oper0, instr.oper1) {
         (Some(Operand::Register(r0)), Some(Operand::Register(r1))) => {
@@ -66,6 +82,7 @@ fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&
         "push"   =>  convert_push(buf, instr, reg_equ),
         "mov"    =>   convert_mov(buf, instr, reg_equ),
         "jmp"    =>   convert_jmp(buf, instr, reg_equ),
+        "lea"    =>   convert_lea(buf, instr, reg_equ),
         ".text"  =>   convert_txt(buf, instr, reg_equ),
         ".globl" => convert_globl(buf, instr, reg_equ),
         ".str"   =>   convert_str(buf, instr, reg_equ),
@@ -77,7 +94,8 @@ pub fn gen_arm64(parsed: Vec<Instruction>) {
     let mut buf = String::new();
     let reg_equ = HashMap::from([
         ("rbp", "r29"),
-        ("rsp", "sp")
+        ("rsp", "sp" ),
+        ("rip", "pc" ),
     ]);
     for instruction in parsed {
         convert_instruction(&mut buf, instruction, &reg_equ);
