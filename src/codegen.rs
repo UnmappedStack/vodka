@@ -19,7 +19,14 @@ fn convert_mov(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &st
                 reg_equ.get(r1.as_str()).expect("unknown register to mov")
             ).as_str())
         },
-        _ => todo!("so far only mov between two registers is implemented for mov instruction"),
+        (Some(Operand::Register(r0)), Some(Operand::Immediate(n1))) => {
+            buf.push_str(format!(
+                "MOV {}, #{}\n",
+                reg_equ.get(r0.as_str()).expect("unknown register to mov"),
+                n1
+            ).as_str());
+        },
+        _ => todo!("mov format not yet implemented"),
     };
 }
 
