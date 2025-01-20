@@ -3,6 +3,7 @@
 	.text
 	.globl	main
 	.type	main, @function
+	.string	"String literal test: Hello, world (but from an x86 program on an ARM processor)"
 main:
 .LFB0:
 	.cfi_startproc

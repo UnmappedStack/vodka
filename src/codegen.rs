@@ -43,6 +43,13 @@ fn convert_globl(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, 
     }
 }
 
+fn convert_str(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &str>) {
+    match instr.oper0.unwrap() {
+        Operand::Label(l) => buf.push_str(format!(".asciz {}\n", l).as_str()),
+        _ => panic!("Invalid token for string literal"),
+    }
+}
+
 fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
     if instr.label != None {
         buf.push_str(format!("{}:\n", instr.label.clone().unwrap()).as_str());
@@ -54,6 +61,7 @@ fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&
         "jmp"    =>   convert_jmp(buf, instr, reg_equ),
         ".text"  =>   convert_txt(buf, instr, reg_equ),
         ".globl" => convert_globl(buf, instr, reg_equ),
+        ".str"   =>   convert_str(buf, instr, reg_equ),
         _ => todo!("Instruction not implemented yet: {:?}", instr),
     };
 }
