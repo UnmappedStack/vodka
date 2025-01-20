@@ -1,0 +1,21 @@
+## Handling r0 being used for both input 1 and return value:
+
+- Check if the function call is internal or external by checking whether or not the label being called is within the program (assume it's internal if it's stored in a register or smth)
+- If it's external, add this wrapper around function calls:
+    ```
+    move r0, first_argument
+    move r29, arg0 ; backup
+    call func
+    move r28, r0 ; r28 is what rax will actually be equivalent to and what the function return can be accessed through
+    move r0, r29
+    ```
+- If it's internal, simply use a slightly different calling convention where input 0 is passed through r9 instead of r0 or something
+
+## Handling only the first 6 args being passed through registers on x86 but it's the first 8 args on arm64:
+
+- Every time that it pushes, it'll just do (pseudocode that looks more like x86 even tho it'll be done in arm64):
+    ```
+    push <something>
+    mov r6, r7
+    mov r7, <something>
+    ```
