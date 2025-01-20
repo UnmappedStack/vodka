@@ -16,15 +16,15 @@ const PREFIXES: [&str; 7] = [
     "lock", "repne", "repnz", "rep", "repe", "repz", "bnd"
 ];
 
-#[derive(PartialEq, Default)]
+#[derive(PartialEq, Default, Debug)]
 pub struct AtRegAddr {
-    reg: String,
-    off_is_reg: bool,
-    offset_reg: String,
-    offset_num: isize,
+    pub reg: String,
+    pub off_is_reg: bool,
+    pub offset_reg: String,
+    pub offset_num: isize,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum Operand {
     Immediate(isize),
     ReadRegAddr(AtRegAddr),
@@ -32,14 +32,14 @@ pub enum Operand {
     Label(String),
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Instruction {
-    label:  Option<String>,
-    prefix: Option<String>,
-    opcode: String,
-    opsize: Option<usize>,
-    oper0:  Option<Operand>,
-    oper1:  Option<Operand>,
+    pub label:  Option<String>,
+    pub prefix: Option<String>,
+    pub opcode: String,
+    pub opsize: Option<usize>,
+    pub oper0:  Option<Operand>,
+    pub oper1:  Option<Operand>,
 }
 
 fn str_is_alphabetic(s: &str) -> bool {
@@ -97,9 +97,9 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
         } else if REGS.contains(&token) {
             println!("Register: {}", token);
             if instr.oper1 == None {
-                instr.oper0 = Some(Operand::Register(token.to_string()));
-            } else {
                 instr.oper1 = Some(Operand::Register(token.to_string()));
+            } else {
+                instr.oper0 = Some(Operand::Register(token.to_string()));
             }
             continue
         } else if let Some(sz) = sizes.get(token.to_lowercase().as_str()) {
@@ -158,9 +158,15 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
     return Some(instr);
 }
 
-pub fn parse_file(asm: String, sizes: HashMap<&str, usize>) {
+pub fn parse_file(asm: String, sizes: HashMap<&str, usize>) -> Vec<Instruction> {
     let lines: Vec<_> = asm.split("\n").collect();
+    let mut ret = Vec::new();
     for instruction in lines {
-        parse(&normalise_spaces(instruction.trim_start()), sizes.clone());
+        let instr = parse(&normalise_spaces(instruction.trim_start()), sizes.clone());
+        match instr {
+            Some(i) => ret.push(i),
+            _ => {},
+        };
     }
+    ret
 }
