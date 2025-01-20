@@ -42,7 +42,8 @@ pub struct Instruction {
     pub oper1:  Option<Operand>,
 }
 
-fn str_is_alphabetic(s: &str) -> bool {
+fn str_is_instruction(s: &str) -> bool {
+    if s == ".text" || s == ".globl" {return true}
     for c in s.chars() {
         if !c.is_alphanumeric() {return false}
     }
@@ -66,12 +67,12 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
         instr.label = Some((&instruction[..instruction.len() - 1]).to_string());
         return Some(instr);
     }
-    if instruction.as_bytes()[0] as char == '.' {
+    let mut tokens: Vec<_> = instruction.split(" ").collect();
+    if instruction.as_bytes()[0] as char == '.' && !str_is_instruction(tokens[0]) {
         return None;
     }
-    println!("Instruction: `{}`", instruction);
-    let mut tokens: Vec<_> = instruction.split(" ").collect();
     tokens.reverse();
+    println!("Instruction: `{}`", instruction);
     let mut tokens_iter = tokens.clone().into_iter().enumerate().peekable();
     while let Some((i, mut token)) = tokens_iter.next() {
         let mut tok_len: usize = token.len();
@@ -110,7 +111,7 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
             println!("Prefix: {}", token);
             instr.prefix = Some(token.to_string());
             continue
-        } else if str_is_alphabetic(token) &&
+        } else if str_is_instruction(token) &&
                   (next_is_prefix || i == tokens.len() - 1) {
             println!("Instruction: {}", token);
             instr.opcode = token.to_string();

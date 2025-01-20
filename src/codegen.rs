@@ -32,15 +32,28 @@ fn convert_jmp(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &s
     }
 }
 
+fn convert_txt(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>) {
+    buf.push_str(".section .text\n");
+}
+
+fn convert_globl(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &str>) {
+    match instr.oper0.unwrap() {
+        Operand::Label(l) => buf.push_str(format!(".global {}\n", l).as_str()),
+        _ => panic!("Invalid token to define as global"),
+    }
+}
+
 fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
     if instr.label != None {
         buf.push_str(format!("{}:\n", instr.label.clone().unwrap()).as_str());
         return
     }
     match instr.opcode.as_str() {
-        "push" => convert_push(buf, instr, reg_equ),
-        "mov"  =>  convert_mov(buf, instr, reg_equ),
-        "jmp"  =>  convert_jmp(buf, instr, reg_equ),
+        "push"   =>  convert_push(buf, instr, reg_equ),
+        "mov"    =>   convert_mov(buf, instr, reg_equ),
+        "jmp"    =>   convert_jmp(buf, instr, reg_equ),
+        ".text"  =>   convert_txt(buf, instr, reg_equ),
+        ".globl" => convert_globl(buf, instr, reg_equ),
         _ => todo!("Instruction not implemented yet: {:?}", instr),
     };
 }
