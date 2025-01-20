@@ -55,6 +55,15 @@ fn convert_jmp(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &s
     }
 }
 
+fn convert_call(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &str>) {
+    match instr.oper0.unwrap() {
+        Operand::Label(l) => buf.push_str(format!(
+            "bl {}\n", l
+        ).as_str()),
+        _ => todo!("so far call only supports jumping to a label"),
+    }
+}
+
 fn convert_txt(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>) {
     buf.push_str(".section .text\n");
 }
@@ -83,6 +92,7 @@ fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&
         "mov"    =>   convert_mov(buf, instr, reg_equ),
         "jmp"    =>   convert_jmp(buf, instr, reg_equ),
         "lea"    =>   convert_lea(buf, instr, reg_equ),
+        "call"   =>  convert_call(buf, instr, reg_equ),
         ".text"  =>   convert_txt(buf, instr, reg_equ),
         ".globl" => convert_globl(buf, instr, reg_equ),
         ".str"   =>   convert_str(buf, instr, reg_equ),
