@@ -111,6 +111,9 @@ pub fn gen_arm64(parsed: Vec<Instruction>) {
         ("rbp", "r29"),
         ("rsp", "sp" ),
         ("rip", "pc" ),
+        ("rax", "r0" ),
+        ("eax", "w0" ),
+        ("rdi", "r0" ),
     ]);
     for instruction in parsed {
         convert_instruction(&mut buf, instruction, &reg_equ);
