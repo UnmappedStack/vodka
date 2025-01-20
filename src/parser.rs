@@ -16,12 +16,24 @@ const PREFIXES: [&str; 7] = [
     "lock", "repne", "repnz", "rep", "repe", "repz", "bnd"
 ];
 
+#[derive(PartialEq, Debug)]
+pub enum AddrOffset {
+    Register(String),
+    Number(isize),
+    Label(String),
+    Dflt // default
+}
+
+impl Default for AddrOffset {
+    fn default() -> Self {
+        AddrOffset::Dflt
+    }
+}
+
 #[derive(PartialEq, Default, Debug)]
 pub struct AtRegAddr {
     pub reg: String,
-    pub off_is_reg: bool,
-    pub offset_reg: String,
-    pub offset_num: isize,
+    pub off: AddrOffset,
 }
 
 #[derive(PartialEq, Debug)]
@@ -121,15 +133,15 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
             let off = &token[..lbracket_idx];
             print!("Offset read - Address in register: {}", arg.reg);
             if REGS.contains(&off) {
-                arg.off_is_reg = true;
-                arg.offset_reg = off.to_string();
+                arg.off = AddrOffset::Register(off.to_string());
+            } else if (off.as_bytes()[0] as char).is_alphanumeric() || off.as_bytes()[0] as char == '.' {
+                arg.off = AddrOffset::Label(off.to_string());
             } else {
-                arg.off_is_reg = false;
                 n = off.parse::<isize>();
                 if !n.is_ok() {
                     panic!("Memory access offset is neither a register nor an immediate numeric value.");
                 }
-                arg.offset_num = n.unwrap();
+                arg.off = AddrOffset::Number(n.unwrap());
             }
             if instr.oper1 == None {
                 instr.oper1 = Some(Operand::ReadRegAddr(arg));
