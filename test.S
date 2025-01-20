@@ -15,6 +15,7 @@ main:
 	mov	rbp, rsp
 	.cfi_def_cfa_register 6
 .L2:
+    ret
 	jmp	.L2
 	.cfi_endproc
 .LFE0:

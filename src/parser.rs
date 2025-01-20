@@ -131,7 +131,6 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
             let lbracket_idx = token.find("[").unwrap();
             arg.reg = (&token[lbracket_idx + 1..tok_len - 1]).to_string();
             let off = &token[..lbracket_idx];
-            print!("Offset read - Address in register: {}", arg.reg);
             if REGS.contains(&off) {
                 arg.off = AddrOffset::Register(off.to_string());
             } else if (off.as_bytes()[0] as char).is_alphanumeric() || off.as_bytes()[0] as char == '.' {
