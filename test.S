@@ -1,22 +1,29 @@
     .file	"test.c"
 	.intel_syntax noprefix
 	.text
+	.section	.rodata
+	.align 8
+.LC0:
+	.string	"Hello, world (but from an x86 program on an ARM processor)"
+	.text
 	.globl	main
 	.type	main, @function
-	.string	"String literal test: Hello, world (but from an x86 program on an ARM processor)"
 main:
 .LFB0:
 	.cfi_startproc
 	push	rbp
-    call    .L2
-	lea rbp, .L2[rip]
-    .cfi_def_cfa_offset 16
+	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
 	mov	rbp, rsp
 	.cfi_def_cfa_register 6
-.L2:
-    ret
-	jmp	.L2
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+	mov	eax, 0
+	pop	rbp
+	.cfi_def_cfa 7, 8
+	ret
 	.cfi_endproc
 .LFE0:
 	.size	main, .-main

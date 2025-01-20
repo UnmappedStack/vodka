@@ -10,6 +10,15 @@ fn convert_push(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &s
     };
 }
 
+fn convert_pop(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
+    match instr.oper0.unwrap() {
+        Operand::Register(r) => buf.push_str(format!(
+            "LDR {}, [sp], #8\n", reg_equ.get(r.as_str()).expect("unknown register to pop")
+        ).as_str()),
+        _ => todo!("so far only registers can be popped from the stack"),
+    };
+}
+
 fn convert_lea(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
     match (instr.oper0, instr.oper1) {
         (Some(Operand::Register(r)), Some(Operand::ReadRegAddr(m))) => {
@@ -93,6 +102,7 @@ fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&
     }
     match instr.opcode.as_str() {
         "push"   =>  convert_push(buf, instr, reg_equ),
+        "pop"    =>   convert_pop(buf, instr, reg_equ),
         "mov"    =>   convert_mov(buf, instr, reg_equ),
         "jmp"    =>   convert_jmp(buf, instr, reg_equ),
         "lea"    =>   convert_lea(buf, instr, reg_equ),
