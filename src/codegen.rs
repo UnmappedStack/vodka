@@ -2,7 +2,7 @@
 use crate::parser::*;
 use std::collections::HashMap;
 
-fn check_internal_fn(instructions: &Vec<Instruction>, _line: usize, label: &str) -> bool {
+fn check_internal_fn(instructions: &Vec<Instruction>, label: &str) -> bool {
     for instr in instructions {
         match &instr.label {
             Some(l) => if l == label {return true},
@@ -77,11 +77,17 @@ fn convert_jmp(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &s
     }
 }
 
-fn convert_call(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
+fn convert_call(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &str>, instructions: &Vec<Instruction>, _line: usize) {
     match instr.oper0.unwrap() {
-        Operand::Label(l) => buf.push_str(format!(
-            "BL {}\n", l
-        ).as_str()),
+        Operand::Label(l) => {
+            let is_external = !check_internal_fn(instructions, &l);
+            buf.push_str(format!(
+                "BL {}\n", l
+            ).as_str());
+            if is_external {
+                buf.push_str("MOV r28, r0\n");
+            }
+        },
         _ => todo!("so far call only supports jumping to a label"),
     }
 }
@@ -137,7 +143,7 @@ pub fn gen_arm64(parsed: Vec<Instruction>) {
         ("rip", "pc" ),
         ("rax", "r0" ),
         ("eax", "w0" ),
-        ("rdi", "r0" ),
+        ("rdi", "r28" ),
     ]);
     for (i, instruction) in (&parsed).into_iter().enumerate() {
         convert_instruction(&mut buf, instruction.clone(), &reg_equ, &parsed, i);
