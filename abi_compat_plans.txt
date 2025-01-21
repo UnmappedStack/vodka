@@ -8,8 +8,8 @@
     call func
     move r28, r0
     ```
-- Inside of functions, immediately save r0 to another register which is what's mapped to rdi.
-
+- You can tell if it's the end of a function declaration by checking if the next instruction is `ret`
+- You can tell if it's an internal/external function call by checking if the label is defined within the program
 
 ## Handling only the first 6 args being passed through registers on x86 but it's the first 8 args on arm64:
 
