@@ -1,7 +1,7 @@
 ## Handling r0 being used for both input 1 and return value:
 
-- Map rax to a different register, say r27
-- If it's an internal function call, then at the end of each function declaration, move r27 into r0
+- Map rax to a different register, say r28
+- If it's an internal function call, then at the end of each function declaration, move r28 into r0
 - if it's an external function call, then add this wrapper around function calls:
     ```
     move r0, first_argument
