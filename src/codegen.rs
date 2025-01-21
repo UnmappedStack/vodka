@@ -4,7 +4,9 @@ use std::collections::HashMap;
 fn convert_push(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
     match instr.oper0.unwrap() {
         Operand::Register(r) => buf.push_str(format!(
-            "STP {}, [sp, #-8]!\n", reg_equ.get(r.as_str()).expect("unknown register to push")
+            "STP {}, [sp, #-8]!\nMOV r6, r7\nMOV r7, {}",
+            reg_equ.get(r.as_str()).expect("unknown register to push"),
+            reg_equ.get(r.as_str()).expect("unknown register to push")
         ).as_str()),
         _ => todo!("so far only registers can be pushed onto the stack"),
     };
