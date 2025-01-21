@@ -93,7 +93,7 @@ fn convert_call(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &
 }
 
 fn convert_ret(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
-    buf.push_str("RET\n");
+    buf.push_str("MOV r0, r28\nRET\n");
 }
 
 fn convert_txt(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
