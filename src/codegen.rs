@@ -119,6 +119,7 @@ fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&
 
 pub fn gen_arm64(parsed: Vec<Instruction>) {
     let mut buf = String::new();
+    // NOTE: Don't map r6 or r7 to anything!
     let reg_equ = HashMap::from([
         ("rbp", "r29"),
         ("rsp", "sp" ),
