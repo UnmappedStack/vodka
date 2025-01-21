@@ -16,7 +16,7 @@ const PREFIXES: [&str; 7] = [
     "lock", "repne", "repnz", "rep", "repe", "repz", "bnd"
 ];
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum AddrOffset {
     Register(String),
     Number(isize),
@@ -30,13 +30,13 @@ impl Default for AddrOffset {
     }
 }
 
-#[derive(PartialEq, Default, Debug)]
+#[derive(PartialEq, Default, Debug, Clone)]
 pub struct AtRegAddr {
     pub reg: String,
     pub off: AddrOffset,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Operand {
     Immediate(isize),
     ReadRegAddr(AtRegAddr),
@@ -44,7 +44,7 @@ pub enum Operand {
     Label(String),
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Instruction {
     pub label:  Option<String>,
     pub prefix: Option<String>,
