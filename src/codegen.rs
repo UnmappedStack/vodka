@@ -1,6 +1,16 @@
 use crate::parser::*;
 use std::collections::HashMap;
 
+fn check_internal_fn(instructions: Vec<Instruction>, label: &str) -> bool {
+    for instr in instructions {
+        match instr.label {
+            Some(l) => if l == label {return true},
+            _ => {},
+        };
+    }
+    return false;
+}
+
 fn convert_push(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>) {
     match instr.oper0.unwrap() {
         Operand::Register(r) => buf.push_str(format!(
