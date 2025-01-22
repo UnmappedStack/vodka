@@ -134,7 +134,7 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
             if REGS.contains(&off) {
                 arg.off = AddrOffset::Register(off.to_string());
             } else if (off.as_bytes()[0] as char).is_alphanumeric() || off.as_bytes()[0] as char == '.' {
-                arg.off = AddrOffset::Label(off.to_string());
+                arg.off = AddrOffset::Label(off.to_string().replace("@PLT", ""));
             } else {
                 n = off.parse::<isize>();
                 if !n.is_ok() {
@@ -150,9 +150,9 @@ pub fn parse(instruction: &str, sizes: HashMap<&str, usize>) -> Option<Instructi
             continue
         } else if (token.as_bytes()[0] as char).is_alphanumeric() || token.as_bytes()[0] as char == '.' {
             if instr.oper1 == None {
-                instr.oper1 = Some(Operand::Label(token.to_string()));
+                instr.oper1 = Some(Operand::Label(token.to_string().replace("@PLT", "")));
             } else {
-                instr.oper0 = Some(Operand::Label(token.to_string()));
+                instr.oper0 = Some(Operand::Label(token.to_string().replace("@PLT", "")));
             }
         } else {
             panic!("Couldn't detect token type: {}", token);
