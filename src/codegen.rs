@@ -36,9 +36,14 @@ fn convert_lea(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &st
     match (instr.oper0, instr.oper1) {
         (Some(Operand::Register(r)), Some(Operand::ReadRegAddr(m))) => {
             if let AddrOffset::Label(label) = m.off {
+                let mut reg2 = *reg_equ.get(m.reg.as_str()).expect("unknown register to lea");
+                if reg2 == "pc" {
+                    reg2 = "x9";
+                    buf.push_str("ADR x9, .\n");
+                }
                 buf.push_str(format!(
                     "ADR x29, {}\nADD {}, x29, {}\n",
-                    label, reg_equ.get(r.as_str()).expect("unknown register to lea"), reg_equ.get(m.reg.as_str()).expect("unknown register to lea")
+                    label, reg_equ.get(r.as_str()).expect("unknown register to lea"), reg2
                 ).as_str());
             } else {
                 panic!("lea operand 1 must always be a memory offset with a label");
