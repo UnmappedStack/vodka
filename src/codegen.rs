@@ -134,7 +134,7 @@ fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&
     };
 }
 
-pub fn gen_arm64(parsed: Vec<Instruction>) {
+pub fn gen_arm64(parsed: Vec<Instruction>) -> String {
     let mut buf = String::new();
     // NOTE: Don't map r6 or r7 to anything!
     let reg_equ = HashMap::from([
@@ -149,4 +149,5 @@ pub fn gen_arm64(parsed: Vec<Instruction>) {
         convert_instruction(&mut buf, instruction.clone(), &reg_equ, &parsed, i);
     }
     println!("Generated arm64 asm:\n\n{}", buf);
+    buf
 }
