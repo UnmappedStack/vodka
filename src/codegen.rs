@@ -15,7 +15,7 @@ fn check_internal_fn(instructions: &Vec<Instruction>, label: &str) -> bool {
 fn convert_push(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
     match instr.oper0.unwrap() {
         Operand::Register(r) => buf.push_str(format!(
-            "STP {}, [sp, #-8]!\nMOV r6, r7\nMOV r7, {}",
+            "SUB SP, SP, #16\nSTR {}, [SP]\nMOV x6, x7\nMOV x7, {}\n",
             reg_equ.get(r.as_str()).expect("unknown register to push"),
             reg_equ.get(r.as_str()).expect("unknown register to push")
         ).as_str()),
@@ -37,7 +37,7 @@ fn convert_lea(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &st
         (Some(Operand::Register(r)), Some(Operand::ReadRegAddr(m))) => {
             if let AddrOffset::Label(label) = m.off {
                 buf.push_str(format!(
-                    "ADR r29, {}\nADD {}, r29, {}\n",
+                    "ADR x29, {}\nADD {}, x29, {}\n",
                     label, reg_equ.get(r.as_str()).expect("unknown register to lea"), reg_equ.get(m.reg.as_str()).expect("unknown register to lea")
                 ).as_str());
             } else {
@@ -85,7 +85,7 @@ fn convert_call(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &
                 "BL {}\n", l
             ).as_str());
             if is_external {
-                buf.push_str("MOV r28, r0\n");
+                buf.push_str("MOV x28, x0\n");
             }
         },
         _ => todo!("so far call only supports jumping to a label"),
@@ -93,7 +93,7 @@ fn convert_call(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &
 }
 
 fn convert_ret(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
-    buf.push_str("MOV r0, r28\nRET\n");
+    buf.push_str("MOV x0, x28\nRET\n");
 }
 
 fn convert_txt(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
@@ -138,12 +138,12 @@ pub fn gen_arm64(parsed: Vec<Instruction>) -> String {
     let mut buf = String::new();
     // NOTE: Don't map r6 or r7 to anything!
     let reg_equ = HashMap::from([
-        ("rbp", "r29"),
+        ("rbp", "x29"),
         ("rsp", "sp" ),
         ("rip", "pc" ),
-        ("rax", "r0" ),
+        ("rax", "x0" ),
         ("eax", "w0" ),
-        ("rdi", "r28" ),
+        ("rdi", "x28" ),
     ]);
     for (i, instruction) in (&parsed).into_iter().enumerate() {
         convert_instruction(&mut buf, instruction.clone(), &reg_equ, &parsed, i);
