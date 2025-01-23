@@ -55,7 +55,7 @@ pub struct Instruction {
 }
 
 fn str_is_instruction(s: &str) -> bool {
-    if s == ".text" || s == ".globl" {return true}
+    if s == ".section" || s == ".text" || s == ".globl" {return true}
     for c in s.chars() {
         if !c.is_alphanumeric() {return false}
     }
