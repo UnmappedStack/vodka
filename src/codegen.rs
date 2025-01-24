@@ -98,11 +98,15 @@ fn convert_call(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &
 }
 
 fn convert_ret(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
-    buf.push_str("MOV x0, x28\nRET\n");
+    buf.push_str("LDR x30, [SP]\nADD SP, SP, #16\nMOV x0, x28\nRET\n");
 }
 
 fn convert_txt(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
     buf.push_str(".section .text\n");
+}
+
+fn convert_startfn(buf: &mut String, _instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
+    buf.push_str("SUB SP, SP, #16\nSTR x30, [SP]\n");
 }
 
 fn convert_section(buf: &mut String, instr: Instruction, _reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
@@ -133,17 +137,18 @@ fn convert_instruction(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&
         return
     }
     match instr.opcode.as_str() {
-        "push"     =>    convert_push(buf, instr, reg_equ, instructions, line),
-        "pop"      =>     convert_pop(buf, instr, reg_equ, instructions, line),
-        "mov"      =>     convert_mov(buf, instr, reg_equ, instructions, line),
-        "jmp"      =>     convert_jmp(buf, instr, reg_equ, instructions, line),
-        "lea"      =>     convert_lea(buf, instr, reg_equ, instructions, line),
-        "call"     =>    convert_call(buf, instr, reg_equ, instructions, line),
-        "ret"      =>     convert_ret(buf, instr, reg_equ, instructions, line),
-        ".text"    =>     convert_txt(buf, instr, reg_equ, instructions, line),
-        ".globl"   =>   convert_globl(buf, instr, reg_equ, instructions, line),
-        ".str"     =>     convert_str(buf, instr, reg_equ, instructions, line),
-        ".section" => convert_section(buf, instr, reg_equ, instructions, line),
+        "push"           =>    convert_push(buf, instr, reg_equ, instructions, line),
+        "pop"            =>     convert_pop(buf, instr, reg_equ, instructions, line),
+        "mov"            =>     convert_mov(buf, instr, reg_equ, instructions, line),
+        "jmp"            =>     convert_jmp(buf, instr, reg_equ, instructions, line),
+        "lea"            =>     convert_lea(buf, instr, reg_equ, instructions, line),
+        "call"           =>    convert_call(buf, instr, reg_equ, instructions, line),
+        "ret"            =>     convert_ret(buf, instr, reg_equ, instructions, line),
+        ".text"          =>     convert_txt(buf, instr, reg_equ, instructions, line),
+        ".globl"         =>   convert_globl(buf, instr, reg_equ, instructions, line),
+        ".str"           =>     convert_str(buf, instr, reg_equ, instructions, line),
+        ".section"       => convert_section(buf, instr, reg_equ, instructions, line),
+        ".cfi_startproc" => convert_startfn(buf, instr, reg_equ, instructions, line),
         _ => todo!("Instruction not implemented yet: {:?}", instr),
     };
 }
