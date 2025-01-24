@@ -154,11 +154,11 @@ pub fn gen_arm64(parsed: Vec<Instruction>) -> String {
     // NOTE: Don't map r6 or r7 to anything!
     let reg_equ = HashMap::from([
         ("rbp", "x29"),
-        ("rsp", "sp" ),
+        ("rsp", "SP" ),
         ("rip", "."  ),
         ("rax", "x0" ),
         ("eax", "w0" ),
-        ("rdi", "x28" ),
+        ("rdi", "x28"),
     ]);
     for (i, instruction) in (&parsed).into_iter().enumerate() {
         convert_instruction(&mut buf, instruction.clone(), &reg_equ, &parsed, i);
