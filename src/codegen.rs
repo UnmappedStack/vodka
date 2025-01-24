@@ -26,7 +26,7 @@ fn convert_push(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &s
 fn convert_pop(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &str>, _instructions: &Vec<Instruction>, _line: usize) {
     match instr.oper0.unwrap() {
         Operand::Register(r) => buf.push_str(format!(
-            "LDR {}, [sp], #8\n", reg_equ.get(r.as_str()).expect("unknown register to pop")
+            "LDR {}, [SP]\nADD SP, SP, #16\n", reg_equ.get(r.as_str()).expect("unknown register to pop")
         ).as_str()),
         _ => todo!("so far only registers can be popped from the stack"),
     };
