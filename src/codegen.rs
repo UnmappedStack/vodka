@@ -37,10 +37,6 @@ fn convert_lea(buf: &mut String, instr: Instruction, reg_equ: &HashMap<&str, &st
         (Some(Operand::Register(r)), Some(Operand::ReadRegAddr(m))) => {
             if let AddrOffset::Label(label) = m.off {
                 let mut reg2 = *reg_equ.get(m.reg.as_str()).expect("unknown register to lea");
-                if reg2 == "pc" {
-                    reg2 = "x9";
-                    buf.push_str("ADR x9, .\n");
-                }
                 buf.push_str(format!(
                     "ADR x29, {}\nADD {}, x29, {}\n",
                     label, reg_equ.get(r.as_str()).expect("unknown register to lea"), reg2
@@ -159,7 +155,7 @@ pub fn gen_arm64(parsed: Vec<Instruction>) -> String {
     let reg_equ = HashMap::from([
         ("rbp", "x29"),
         ("rsp", "sp" ),
-        ("rip", "pc" ),
+        ("rip", "."  ),
         ("rax", "x0" ),
         ("eax", "w0" ),
         ("rdi", "x28" ),
