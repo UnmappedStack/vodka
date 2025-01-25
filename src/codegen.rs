@@ -163,9 +163,9 @@ pub fn gen_arm64(parsed: Vec<Instruction>) -> String {
         ("rbp", "x29"),
         ("rsp", "SP" ),
         ("rip", "."  ),
-        ("rax", "x0" ),
-        ("eax", "w0" ),
-        ("rdi", "x28"),
+        ("rax", "x28"),
+        ("eax", "w28"),
+        ("rdi", "x0"),
     ]);
     for (i, instruction) in (&parsed).into_iter().enumerate() {
         convert_instruction(&mut buf, instruction.clone(), &reg_equ, &parsed, i);

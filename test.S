@@ -4,7 +4,7 @@
 	.section	.rodata
 	.align 8
 .LC0:
-	.string	"Hello, world (but from an x86 program on an ARM processor)"
+	.string	"Hello, world (but from an x86 program on an ARM processor)\n"
 	.text
 	.globl	main
 	.type	main, @function
