@@ -170,6 +170,5 @@ pub fn gen_arm64(parsed: Vec<Instruction>) -> String {
     for (i, instruction) in (&parsed).into_iter().enumerate() {
         convert_instruction(&mut buf, instruction.clone(), &reg_equ, &parsed, i);
     }
-    println!("Generated arm64 asm:\n\n{}", buf);
     buf
 }

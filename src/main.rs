@@ -15,4 +15,5 @@ fn main() {
     let parsed = parser::parse_file(x86asm, sizes);
     let arm64asm = codegen::gen_arm64(parsed);
     fs::write("out.S", arm64asm.as_str()).expect("Unable to write generated ARM64 assembly to filesystem.");
+    println!("See out.S for generated ARM64 asm.");
 }
